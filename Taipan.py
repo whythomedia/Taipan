@@ -9,7 +9,7 @@ original_prices = {'gold':800,'silk':200,'arms':50,'general':10}
 prices = {'gold':1,'silk':1,'arms':1,'general':1}
 actions = ['buy','sell','inventory','run']
 cities = ['Hong Kong','Shanghai','Nagasaki','Saigon','Manila','Singapore','Batavia']
-turn = 0
+turn = 1
 player_name = ''
 
 def main():
@@ -33,7 +33,10 @@ def play():
         action = toDo.partition(' ')[0]
         action_item = toDo.partition(' ')[2]
 
-        if action == 'help':
+        if boat_fill() == 0 and boat['money'] == 0:
+            print "You have no money and no goods, you lose!"
+            working = False
+        elif action == 'help':
             print "You can:"
             for i in actions:
               print i
@@ -189,15 +192,16 @@ def sail():
     if sail_to == boat['city']:
         print "You're already there, pick somewhere else"
     else:
+        if 1 == random.randrange(1,21):
+            print "You got robbed! Your ship was emptied while you were asleep."
+            for i in wares:
+                boat[i] = 0
         boat['city'] = sail_to
         turn +=1
         print "\n***** Welcome to %s, turn %s *****" % (sail_to,turn)
         current_prices(sail_to)
     # get robbed
-    if 1 == random.randrange(1,2):
-        print "You got robbed! Your ship was emptied while you were asleep."
-        for i in wares:
-            boat[i] = 0
+
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':
