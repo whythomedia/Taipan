@@ -4,7 +4,7 @@ import math
 import random
 
 wares = ['gold','silk','arms','general']
-boat = {'gold':0,'silk':0,'arms':0,'general':0,'money':100,'capacity':10,'city':'Hong Kong'}
+boat = {'gold':0,'silk':0,'arms':0,'general':0,'money':100,'capacity':10,'city':0}
 original_prices = {'gold':800,'silk':200,'arms':50,'general':10}
 prices = {'gold':1,'silk':1,'arms':1,'general':1}
 actions = ['buy','sell','inventory','run']
@@ -17,7 +17,7 @@ def main():
     if player_name == '':
         player_name = raw_input("What is your name sailor. ")
     print "\n***** Welcome to Hong Kong! *****"
-    current_prices('Hong Kong')
+    current_prices(boat['city'])
     play()
 
 def play():
@@ -174,6 +174,14 @@ def get_user_number(transaction):
         print("I didn't recognize {0} as a number".format(i))
         return get_user_number(transaction)
 
+def get_user_city_number():
+    s = raw_input("Where do you want to go? ")
+    try:
+        return  int(s) - 1
+    except:
+        print("I didn't recognize {0} as a number".format(s))
+        return get_user_city_number()
+
 def boat_fill():
     fill = 0
     for i in wares:
@@ -186,11 +194,17 @@ def sail():
     global cities
     global boat
     print " "
+    loop = 0
     for i in cities:
-        print i
-    sail_to = raw_input("Where do you want to go? ")
+        print "%s: %s" % (loop+1,i)
+        loop += 1
+    sail_to = get_user_city_number()
     if sail_to == boat['city']:
-        print "You're already there, pick somewhere else"
+        print "\nYou're already there, pick somewhere else"
+        sail()
+    elif sail_to > 6 or 0 > sail_to:
+        print "\nNo go Captain, thar be sea snakes!"
+        sail()
     else:
         if 1 == random.randrange(1,21):
             print "You got robbed! Your ship was emptied while you were asleep."
@@ -198,9 +212,8 @@ def sail():
                 boat[i] = 0
         boat['city'] = sail_to
         turn +=1
-        print "\n***** Welcome to %s, turn %s *****" % (sail_to,turn)
+        print "\n***** Welcome to %s, turn %s *****" % (cities[sail_to],turn)
         current_prices(sail_to)
-    # get robbed
 
 
 # This is the standard boilerplate that calls the main() function.
