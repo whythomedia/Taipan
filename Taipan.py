@@ -2,7 +2,13 @@
 import sys
 import math
 import random
+import Tkinter as tk
 
+app = tk.Tk()
+app.title("Taipan")
+
+
+#The Game Begins
 wares = ['gold','silk','arms','general']
 boat = {'gold':0,'silk':0,'arms':0,'general':0,'money':100,'capacity':10,'city':0}
 original_prices = {'gold':800,'silk':200,'arms':50,'general':10}
@@ -14,8 +20,10 @@ player_name = ''
 
 def main():
     global player_name
-    if player_name == '':
-        player_name = raw_input("What is your name sailor. ")
+    if turn == 1:
+        pname = raw_input("What is your name sailor. ")
+        player_name = pname
+        TKplayer_name.set(pname)
     print "\n***** Welcome to Hong Kong! *****"
     current_prices(boat['city'])
     play()
@@ -24,6 +32,7 @@ def play():
     global boat
     working = True
     while working:
+        TKturn.set(turn)
         print "\nYou have $%s" % (boat['money'])
 
         for i in wares:
@@ -141,16 +150,23 @@ def transaction(direction,item,volume):
         else:
             boat[item] += volume
             boat["money"] -= cost
+            boat["capacity"] -= volume
             print "\nSUCCESS"
             print "That costs you %s dollars." % (cost)
             print "We loaded %s units of %s for you." % (volume, item)
             print "You now have %s units of %s in storage and $%s left." % (boat[item], item, boat["money"])
+            TKmoney.set(boat['money'])
+            TKcapacity.set(boat['capacity'])
     else:
         boat["money"] += cost
+        boat["capacity"] += volume
         print "\nSUCCESS"
         print "That earns you %s dollars." % (cost)
         print "We unloaded %s units of %s for you." % (volume, item)
         print "You now have %s units of %s in storage and $%s." % (boat[item], item, boat["money"])
+        TKmoney.set(boat['money'])
+        TKcapacity.set(boat['capacity'])
+
 
 def current_prices(city):
         global original_prices
@@ -211,9 +227,48 @@ def sail():
             for i in wares:
                 boat[i] = 0
         boat['city'] = sail_to
+        TKcity.set(cities[sail_to])
         turn +=1
         print "\n***** Welcome to %s, turn %s *****" % (cities[sail_to],turn)
         current_prices(sail_to)
+
+
+
+# Interface
+
+TKplayer_name = tk.StringVar()
+TKplayer_name.set(player_name)
+TKturn = tk.IntVar()
+TKturn.set(turn)
+TKcity = tk.StringVar()
+TKcity.set(cities[boat['city']])
+TKcapacity = tk.IntVar()
+TKcapacity.set(boat['capacity'])
+TKmoney = tk.IntVar()
+TKmoney.set(boat['money'])
+TKgold = tk.IntVar()
+TKgold.set(boat['gold'])
+TKsilk = tk.IntVar()
+TKsilk.set(boat['silk'])
+TKgeneral = tk.IntVar()
+TKgeneral.set(boat['general'])
+TKarms = tk.IntVar()
+TKarms.set(boat['arms'])
+
+tk.Label(app, text="Player Name: ").grid(row=0, column=0)
+tk.Label(app, textvariable=TKplayer_name).grid(row=0, column=1)
+tk.Label(app, text='Turn: ').grid(column=0, row=1, sticky=tk.E)
+tk.Label(app, textvariable=TKturn).grid(column=1, row=1, sticky=tk.W)
+tk.Label(app, text='City: ').grid(column=0, row=2, sticky=tk.E)
+tk.Label(app, textvariable=TKcity).grid(column=1, row=2, sticky=tk.W)
+tk.Label(app, text='Money: ').grid(column=0, row=3, sticky=tk.E)
+tk.Label(app, textvariable=TKmoney).grid(column=1, row=3, sticky=tk.W)
+tk.Label(app, text='Capacity: ').grid(column=0, row=4, sticky=tk.E)
+tk.Label(app, textvariable=TKcapacity).grid(column=1, row=4, sticky=tk.W)
+#tk.Label(app, text='Money: ').grid(column=0, row=5, sticky=tk.E)
+#tk.Label(app, textvariable=TKmoney).grid(column=1, row=5, sticky=tk.W)
+
+
 
 
 # This is the standard boilerplate that calls the main() function.
