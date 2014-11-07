@@ -52,6 +52,7 @@ def tkfield(parent,var,row,initial,font):
 		tk.Label(parent, textvariable=var, pady = 0, font = font1, bg = "#e8eaeb", fg = "#404040").grid(row=row, column=0, sticky=tk.W )
 	var.set(initial)
 
+
 #--- The main class that holds all of the boat information
 class Taipan:
 	#The Game Begins
@@ -63,6 +64,8 @@ class Taipan:
 	cities = ['Hong Kong','Shanghai','Nagasaki','Saigon','Manila','Singapore','Batavia']
 	turn = 1
 	player_name = 'Sailor'
+	absolute_truth = True
+
 
 	def transaction(self,direction,item,volume):
 		cost = int(self.prices[item]) * int(volume)
@@ -115,12 +118,12 @@ class Taipan:
 			return get_user_number(transaction)
 
 	def get_user_city_number(self):
-		s = raw_input("Where do you want to go? ")
+		s = self.entry.get()
 		try:
 			return  int(s) - 1
 		except:
 			print("I didn't recognize {0} as a number".format(s))
-			return self.get_user_city_number()
+		#	return self.get_user_city_number()
 
 	def boat_fill(self):
 		fill = 0
@@ -128,11 +131,10 @@ class Taipan:
 			fill += self.boat[i]
 		return fill
 
-	def sail(self):
+	def sail(self, number):
 
-		print " "
 		loop = 0
-		sail_to = self.get_user_city_number()
+		sail_to = number
 		if sail_to == self.boat['city']:
 			self.TKresponse.set("\nYou're already there")
 			return
@@ -147,19 +149,8 @@ class Taipan:
 			self.boat['city'] = sail_to
 			self.TKcity.set(self.cities[sail_to])
 			self.turn +=1
-			self.TKresponse.set("\n***** Welcome to %s, turn %s *****" % (self.cities[sail_to],self.turn))
+			self.TKresponse.set("***** Welcome to %s, turn %s *****\nWhat now Captain?" % (self.cities[sail_to],self.turn))
 			self.current_prices(sail_to)
-
-	def get_response(self, local, TK):
-		self.input = self.user.get()
-		local = self.input
-		TK.set(self.input)
-		print self.input
-		self.user.set("")
-		self.entry.delete(0,1)
-
-
-
 
 	#--- update the display variables, at least each time through play()
 	def TKupdate(self):
@@ -171,6 +162,8 @@ class Taipan:
 		self.TKMsilk.set(self.prices['silk'])
 		self.TKMarms.set(self.prices['arms'])
 		self.TKMgeneral.set(self.prices['general'])
+		self.TKturn.set(self.turn)
+
 
 	#--- declare and set all of the variables for display
 	def __init__(self):
@@ -214,25 +207,23 @@ class Taipan:
 
 		self.user = tk.StringVar()
 		self.entry = tk.Entry(dFrame, textvariable=self.user, font = font1, bg = "#e8eaeb", fg = "#404040")
-#		self.entry.bind("<Return>", self.get_response(self.player_name,self.TKplayer_name))
-		self.entry.pack()
+
 
 		tkfield(nameFrame,self.TKplayer_name,0,self.player_name,2)
 		tkfield(turnFrame,self.TKturn,0,self.turn,2)
 		tkfield(cityFrame,self.TKcity,0,self.cities[self.boat['city']],2)
 #		canvas.create_text(650, 98, textvariable=self.TKcity, fill = "#ffdb00", font = font2)
 
-		if self.turn == 1:
-			pname = raw_input("What is your name sailor. ")
-			self.TKresponse.set("What is your name sailor. ")
-#			pname = self.input
-			self.player_name = pname
-			self.TKplayer_name.set(pname)
-		self.entry.bind("<Button-1>", self.get_response(self.player_name,self.TKplayer_name))
+
 
 		Taipan.current_prices(self,self.boat['city'])
-		play(self)
+
+
+		rc = play(self)
+		while rc:
+			rc = play(self)
 
 # This is the standard boilerplate that calls the main() function.
-if __name__ == '__main__':
-  Taipan()
+#if __name__ == '__main__':
+Taipan()
+app.mainloop()
