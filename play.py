@@ -2,6 +2,7 @@ import sys
 import math
 import random
 import Tkinter as tk
+import tkMessageBox as tkm
 from buy import *
 from sell import *
 
@@ -54,5 +55,17 @@ def move(self):
         self.action = ""
         self.action_item = ""
         self.entry.bind("<Return>", self.value_in)
+
+    return
+
+def new_boat(self):
+    if self.boat["money"] > 50:
+        cost =  int(math.floor(self.boat["money"]/2))
+        capacity = int(math.floor(self.boat["money"]/50))
+        text = "Would you like to increase your ship's capacity by %s for %s money?" % (capacity,cost)
+        if tkm.askyesno("New Ship",text):
+            self.boat["money"] -= cost
+            self.boat["capacity"] += capacity
+            self.TKupdate()
 
     return

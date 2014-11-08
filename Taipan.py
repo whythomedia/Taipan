@@ -3,6 +3,7 @@ import sys
 import math
 import random
 import Tkinter as tk
+import tkMessageBox as tkm
 import tkFont
 from play import *
 #from buy import *
@@ -109,20 +110,16 @@ class Taipan:
 		cost = int(self.prices[item]) * int(volume)
 		if direction == "buy":
 			self.boat[item] += int(volume)
-			self.boat["money"] -= cost
-			self.boat["capacity"] -= int(volume)
+			self.boat["money"] -= int(cost)
 			text = "SUCCESS\nWe loaded %s units of %s for you.\nWhat's next?" % (volume, item)
 		else:
 			self.boat[item] -= int(volume)
 			self.boat["money"] += int(cost)
-			self.boat["capacity"] += int(volume)
 			text = "SUCCESS\nWe unloaded %s units of %s for you.\nWhat's next?" % (volume, item)
 		self.action = ""
 		self.action_item = ""
 		self.volume = -1
 		self.TKresponse.set(text)
-		self.TKmoney.set(self.boat['money'])
-		self.TKcapacity.set(self.boat['capacity'])
 		self.entry.bind("<Return>", self.value_in)
 		self.TKupdate()
 
@@ -177,9 +174,11 @@ class Taipan:
 			return
 		else:
 			if 1 == random.randrange(1,21):
-				self.TKresponse.set("You got robbed! Your ship was looted while you were asleep.")
+				tkm.showwarning("Alert!", "You got robbed! Your ship was looted while you were asleep.")
 				for i in self.wares:
 					self.boat[i] = int(math.floor(self.boat[i]/2))
+			if 1 == random.randrange(1,8):
+				new_boat(self)
 			self.boat['city'] = sail_to
 			#self.TKcity.set(self.cities[sail_to])
 			self.turn +=1
@@ -194,6 +193,10 @@ class Taipan:
 
 	#--- update the display variables, at least each time through play()
 	def TKupdate(self):
+		capacity = self.boat['capacity']-self.boat_fill()
+		self.TKhealth.set(self.boat['health'])
+		self.TKcapacity.set(capacity)
+		self.TKmoney.set(self.boat['money'])
 		self.TKgold.set(self.boat['gold'])
 		self.TKsilk.set(self.boat['silk'])
 		self.TKarms.set(self.boat['arms'])

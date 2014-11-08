@@ -34,7 +34,7 @@ def buy(self):
 			self.entry.bind("<Return>", self.get_user_number)
 			return
 		elif volume > self.boat['capacity']-self.boat_fill():
-			volume = self.boat['capacity']-self.boat_fill()
+			#volume = self.boat['capacity']-self.boat_fill()
 			self.TKresponse.set("You don't have that much room left.\nHow many would you like to buy.")
 			self.volume = -1
 			self.entry.bind("<Return>", self.get_user_number)
