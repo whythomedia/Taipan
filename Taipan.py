@@ -29,11 +29,11 @@ dFrame = tk.Frame(canvas, bg = "#e8eaeb")
 nameFrame = tk.Frame(canvas, bg = "#404040")
 turnFrame = tk.Frame(canvas, bg = "#404040")
 cityFrame = tk.Frame(canvas, bg = "#404040")
-aBox = canvas.create_window(185, 154, height=175, width=60, anchor = "nw")
+aBox = canvas.create_window(185, 154, height=200, width=100, anchor = "nw")
 bBox = canvas.create_window(440, 154, height=200, width=60, anchor = "nw")
 cBox = canvas.create_window(70, 460, height=75, width=600, anchor = "nw")
 dBox = canvas.create_window(70, 535, height=25, width=600, anchor = "nw")
-nameBox = canvas.create_window(120, 87, height=30, width=90, anchor = "nw")
+nameBox = canvas.create_window(120, 87, height=30, width=180, anchor = "nw")
 turnBox = canvas.create_window(370, 87, height=30, width=50, anchor = "nw")
 cityBox = canvas.create_window(615, 87, height=30, width=130, anchor = "nw")
 canvas.itemconfigure (aBox, window=aFrame)
@@ -75,7 +75,9 @@ class Taipan:
 		self.volume = -1
 		self.TKresponse.set("What is the name of your firm?")
 		def firm_name(event):
-		    self.player_name = self.entry.get()
+		    new_name = self.entry.get()
+		    new_name = proper_name(new_name)
+		    self.player_name = new_name
 		    self.TKplayer_name.set(self.player_name)
 		    self.entry.delete(0,tk.END)
 		    self.TKresponse.set('What do you want to do?')
@@ -84,27 +86,38 @@ class Taipan:
 		self.entry.pack()
 
 	def value_in(self,event):
+		#handles user response
 		#if self.action == "" and str(self.entry.get()):
 		self.TKupdate()
 		if self.action == "":
 			self.action = str(self.entry.get())
 			self.entry.delete(0,tk.END)
 
+		#checks to see if the user wants to buy or sell an item that exists
 		elif self.action == "buy" or self.action == "sell":
 			s = str(self.entry.get())
 			if s.lower() in self.wares:
 				self.action_item = s.lower()
 				self.entry.delete(0,tk.END)
 			else:
-				text = "You cant move %s in this market.\nWhat else would you like to do?" % (s)
+				text = "You cant move '%s' in this market.\nWhat else would you like to do?" % (s)
 				self.action = ""
+				self.action_item = ""
 				self.TKresponse.set(text)
-
+				self.entry.delete(0,tk.END)
+				return
 		else:
 			pass
 		move(self)
 		self.entry.delete(0,tk.END)
 		return
+
+	def reset_input(self):
+		self.TKresponse.set("What would you like to do.")
+		self.action = ""
+		self.action_item = ""
+		self.volume = -1
+		self.entry.bind("<Return>", self.value_in)
 
 	def transaction(self,direction,item,volume):
 		cost = int(self.prices[item]) * int(volume)
@@ -125,7 +138,7 @@ class Taipan:
 
 	def current_prices(self,city):
 			for i in self.prices:
-					self.prices[i] = self.original_prices[i] * random.randrange(1,6)
+					self.prices[i] = self.original_prices[i] * random.randrange(1,10)
 
 	def proper_name(item):
 		first = item[0].upper()
@@ -135,16 +148,23 @@ class Taipan:
 	def get_user_number(self,transaction):
 		#self.TKresponse.set("How many do you want to %s.\n" % (transaction))
 		s = self.entry.get()
+
 		self.entry.bind("<Return>",self.value_in)
 		self.entry.delete(0,tk.END)
 		try:
-		    s = int(s)
+		    
 		    if self.action == "sail":
+		    	s = int(s)
 		    	self.sail(s)
 		    elif self.action == "sell":
+		    	s = int(s)
 		    	self.volume = s
 		    	sell(self)
 		    elif self.action == "buy":
+		    	if s =="all":
+		    		s = afford(self,self.action_item)
+		    	else:
+		    		s = int(s)
 		    	self.volume = s
 		    	buy(self)
 		    else:
@@ -166,10 +186,12 @@ class Taipan:
 		sail_to = number
 		sail_to -= 1
 		if sail_to == self.boat['city']:
-			self.TKresponse.set("\nYou're already there")
+			self.TKresponse.set("You're already there\nWhat would you like to do.")
+			self.action = ""
 			return
 		elif sail_to > 6 or 0 > sail_to:
-			self.TKresponse.set("No go Captain, thar be sea snakes!")
+			self.TKresponse.set("No go Captain, thar be sea snakes!\nWhat would you like to do.")
+			self.action = ""
 			self.entry.delete(0,tk.END)
 			return
 		else:
@@ -178,7 +200,7 @@ class Taipan:
 				for i in self.wares:
 					self.boat[i] = int(math.floor(self.boat[i]/2))
 			if 1 == random.randrange(1,8):
-				new_boat(self)
+				bigger_boat(self)
 			self.boat['city'] = sail_to
 			#self.TKcity.set(self.cities[sail_to])
 			self.turn +=1
@@ -193,10 +215,12 @@ class Taipan:
 
 	#--- update the display variables, at least each time through play()
 	def TKupdate(self):
+		money = int(self.boat['money'])
+		money = "{:,}".format(money)
 		capacity = self.boat['capacity']-self.boat_fill()
 		self.TKhealth.set(self.boat['health'])
 		self.TKcapacity.set(capacity)
-		self.TKmoney.set(self.boat['money'])
+		self.TKmoney.set(money)
 		self.TKgold.set(self.boat['gold'])
 		self.TKsilk.set(self.boat['silk'])
 		self.TKarms.set(self.boat['arms'])
